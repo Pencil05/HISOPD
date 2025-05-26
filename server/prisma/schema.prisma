@@ -7,9 +7,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user{
-  id Int @id @default(autoincrement())
-  email String
-  password String
-  role String
+model User {
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  password    String
+  role        String       // 'doctor' หรือ 'nurse' หรืออื่นๆ
+  nurseRecords NurseRecord[]
+  patients    Patient[]    @relation("DoctorPatients")
+}
+
+model Patient {
+  id              Int      @id @default(autoincrement())
+  hn              String   // Hospital Number (รหัสคนไข้)
+  vn              String   // Visit Number (รหัสเยี่ยม)
+  citizenId       String?  // บัตร ปชช หรือ ID ใด ๆ
+  fullName        String
+  gender          String
+  birthDate       DateTime
+  doctorId        Int
+  doctor          User     @relation("DoctorPatients", fields: [doctorId], references: [id])
+  nurseRecords    NurseRecord[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model NurseRecord {
+  id                Int      @id @default(autoincrement())
+  userId            Int      // หมอหรือพยาบาล
+  user              User     @relation(fields: [userId], references: [id])
+  patientId         Int
+  patient           Patient  @relation(fields: [patientId], references: [id])
+  patientType       String
+  weight            Float?
+  height            Float?
+  waist             Float?
+  bmi               Float?
+  ofc               Float?
+  bsa               Float?
+  spo2              Float?
+  anc               Float?
+  fbs               Float?
+  vs1_t             Float?
+  vs1_pr            Float?
+  vs1_rr            Float?
+  vs1_bp            String?
+  vs1_pain_score    Float?
+  vs1_adl           Float?
+  vs2_t             Float?
+  vs2_pr            Float?
+  vs2_rr            Float?
+  vs2_bp            String?
+  vs2_pain_score    Float?
+  vs2_iadl          Float?
+  vs2_mmse          Float?
+  visitType         String?
+  currentSymptoms   String?
+  currentTreatment  String?
+  pastIllnesses     String?
+  otherPastIllness  String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
